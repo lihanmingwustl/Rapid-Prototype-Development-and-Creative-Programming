@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    
+<head>
+    <title>
+        JavaScript Calculator
+    </title>>
+</head>>
+
+
+
+
+<body>
+    <form name=calculator method='GET'>
+    Value of x :  <input name="input1" type="text" id="input1"><br>
+    <input type="radio" name="computation" id="add" value="add" checked>+<br>
+    <input type="radio" name="computation" id="subtract" value="subtract">-<br>
+    <input type="radio" name="computation" id="multiply" value="multiply">*<br>
+    <input type="radio" name="computation" id="divide" value="divide">/<br> 
+    Value of y :  <input name="input2" type=text id="input2">
+
+    </form>>
+    
+    <br>
+    <p id = 'finalResult'></p>>
+    </div>
+    <script>
+    document.getElementById("input1").addEventListener("change",operations,false);
+    document.getElementById("input2").addEventListener("change",operations,false);
+    document.getElementById("add").addEventListener("click",operations,false);
+    document.getElementById("subtract").addEventListener("click",operations,false);
+    document.getElementById("multiply").addEventListener("click",operations,false);
+    document.getElementById("divide").addEventListener("click",operations,false);
+    
+    
+    function operations(){
+            var x = document.getElementsByName("input1")[0].value;
+          	var y = document.getElementsByName("input2")[0].value;
+			
+			
+            var operator = "";
+            var answer = 0;
+			
+			  var length=document.getElementsByName("computation").length;
+              for(var i = 0; i < length; i++){
+                if(document.getElementsByName("computation")[i].checked){
+                operator = document.getElementsByName("computation")[i].value;
+                  if(operator == "add"){
+                    answer = parseInt(x) + parseInt(y);
+                  }
+                  else if(operator == "subtract"){
+                    answer=x-y;
+                  }
+                  else if(operator == "multiply"){
+                    answer=x*y;
+                  }
+                  else if(operator == "divide"){
+                    if (y !==0 ) {
+						answer = x/y;
+						}
+						else {
+							alert("y should not equal 0!");
+						}
+		         
+                }
+                  document.getElementById('finalResult').innerHTML = answer;
+                }
+              }
+            }
+
+    </script>
+</body>>
+
+
+
+</html>>

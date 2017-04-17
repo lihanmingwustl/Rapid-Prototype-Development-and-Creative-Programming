@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<head>
+<title>Calendar</title>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script type="text/javascript" src="calender.js"></script>
+<script type="text/javascript" src="calendar.min.js"></script>
+<script type="text/javascript" src="AddEvent.js"></script>
+<script type="text/javascript" src="deleteEvent.js"></script>
+<script type="text/javascript" src="editEvent.js"></script>
+</head>
+<body>
+    <div id = "login">
+        Username: <input id="username" type="text" name="username" ><br/>
+        Password: <input id="password" type="text" name="password"><br/>    
+        <button id="login_btn">login</button>
+    </div>
+
+    <div id = "register">
+        Username: <input id="rusername" type="text" name="rusername" ><br/>
+        Password: <input id="rpassword" type="text" name="rpassword"><br/>    
+        <button id="register_btn">Register</button>
+    </div>
+    
+    <div class="month_nav">
+      <p class="curr_month"></p>
+      <button id="prev_month_btn">Prev</button>
+      <button id="next_month_btn">Next</button>
+    </div>
+        <div class="cal_table">
+            <table id="cal_table">
+            <tr><th>Sunday</th><th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th></tr>
+            </table>
+        </div>
+    <div class="event">
+        <form name="add_event" id="add_event_form">
+        Add Event: <br>
+          Topic:<input type="text" name="topic" id="topic"/><br>
+          Event:<input type="text" name="event" id="event"/><br>
+          Date:<input type="date" name="date" id="date"/><br>
+          Time:<input type="text" name="time" id="time" placeholder="HH:MM"/><br>
+          <button type="button" id="add_event_btn">Add</button><br>
+        </form><br>
+         <form name="delete_event" id="delete_event_form">
+        Delete Event: <br>
+          Topic:<input type="text" name="delete_event_topic" id="delete_event_topic"/><br>
+          <button type="button" id="delete_event_btn">Delete</button><br>
+        </form><br>
+        <form name="add_event" id="add_event_form">
+        Edit Event: <br>
+          Topic:<input type="text" name="edit_event_topic" id="edit_event_topic"/><br>
+          Event:<input type="text" name="edit_event_event" id="edit_event_event"/><br>
+          Date:<input type="date" name="edit_event_date" id="edit_event_date"/><br>
+          Time:<input type="text" name="edit_event_time" id="edit_event_time" placeholder="HH:MM"/><br>
+          <button type="button" id="edit_event_btn">Edit</button><br>
+        </form><br>
+    </div>
+</body>
+</html>	

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+   <head>
+     <title> Chatroom </title> 
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+      <script src="/socket.io/socket.io.js"></script>
+      <script type ="text/javascript">
+      var socketio = io.connect();
+      var username;
+      var usernames = {};
+      var roomsCreated = [];
+      var currentRoom;
+      var allRooms = {};
+      var banned = {};
+      
+      
+      socketio.on("connect", function(data){
+    
+        //when someone connects, we let them input their username and then add it to the Lobby.
+        username = prompt("Please tell us your username");
+        currentRoom = "lobby";
+        allRooms["lobby"] = "";//lobby doesn't need pwd;
+        roomsCreated.push("lobby");//put lobby into roomsCreated array
+        socketio.emit('add_user', username);//add this user
+      });
+      
+      
+      socketio.on("message_to_client", function(username, msg) {
+         //Listen to the message from the server
+         var string = username + ":     " + msg;
+         document.getElementById("chatlog").appendChild(document.createElement("hr"));
+         document.getElementById("chatlog").appendChild(document.createTextNode(string));
+      });
+      
+      
+      socketio.on("update_chatlog", function(username, data){
+        //Update chatlog
+        var string = username + "     " + data;
+        document.getElementById("chatlog").appendChild(document.createElement("hr"));
+        document.getElementById("chatlog").appendChild(document.createTextNode(string));
+      });
+      
+      
+      socketio.on("update_add_room", function(room,rooms){
+        //Updates rooms after one is added
+        roomsCreated = rooms;
+        var list = '';
+        for (var i in rooms){
+          //Onclick, prompt the user to enter the password
+          list += '<div><a href="#" onclick="switchRoomPassword(\''+roomsCreated[i]+'\')">' + roomsCreated[i] + '</a>' + '</div>';
+          //Log the output in the Node.JS console
+          console.log(roomsCreated[i]);
+        }
+        var str = "Chat Rooms : " + list;
+        document.getElementById("rooms").innerHTML =  str;
+      });
+      
+      socketio.on("update_users", function(us,room){
+        //Update the list of useres in the current chatroom
+        var list = '';
+        for(var user in us){
+          if(us[user] == room){
+            //Onclick, allow the user to message another user (in the same room)
+            list += '<div><a href="#" onclick="message(\''+user+'\')">' + user + '</a>' + '</div>';
+            //Log the output in the Node.JS console
+            console.log(user);
+          }
+        }
+        var str = "Users In This Room: " + list;
+        document.getElementById("inroom").innerHTML = str;
+      });
+      
+      
+      socketio.on("switch_room", function(room, pass){
+        //Banned check
+        if(banned[room] == username){
+          console.log("Sorry, you are banned from this room");
+        }
+        //Non-password protected
+        else if(pass == ""){
+          currentRoom = room;
+          socketio.emit("switch_room", currentRoom);
+        }
+        //Password Protected
+        else{
+          var userinputpassword = prompt("Please enter the password to this room");
+          if(userinputpassword  == pass){
+            currentRoom = room;
+            socketio.emit("switch_room", currentRoom);
+          }
+          else{
+            console.log("Sorry, try other passwords!");
+          }
+        }
+      });
+      
+      
+      
+      
+      socketio.on("directMsg", function(target, msg, sender){
+        
+        if(target == username){
+          document.getElementById("chatlog").appendChild(document.createElement("hr"));
+         $('#chatlog').append('<div style="color:blue;">' + sender + ": " + msg + '</div>');
+        }
+      });
+      
+      
+      
+      
+      socketio.on("kickOut", function(target){
+        if(username == target){ 
+          socketio.emit("switch_room", "Lobby");
+        }
+      });
+      
+      
+      socketio.on("banOut", function(target, room){
+        banned[room] = target; 
+        if(username == target){
+          socketio.emit("switch_room", "Lobby");
+          console.log("banned!");
+        }
+      });
+      
+      
+      function sendMessage(){
+        //Send message to the chat room
+         var msg = document.getElementById("message_input").value;
+         socketio.emit("message_to_server", {message:msg});
+      }
+      
+      
+      function addRoom(room){
+        //Create a new chat room
+        var room = document.getElementById("room_input").value;
+        var pass = prompt("If you would like to to make this room private, please enter a password");
+        allRooms[room] = pass;
+        roomsCreated.push(room);
+        //Assign ownership
+        var owner = username;
+        socketio.emit('add_room', owner, room, pass);
+      }
+      
+      
+      function switchRoomPassword(room){
+        //Password Lookup
+        socketio.emit('pwd_lookup', room);
+      }
+      
+      
+      function message(user){
+        var msg = prompt("What do you want to say to him/her?"); 
+        var sendTo = user;
+        var sendFrom = username;
+        socketio.emit('privateMessage', sendTo, msg, sendFrom);
+      }
+      function kickUser(){
+        //Kick function that gets the target and source
+        //var user = document.getElementById("kickName").value;
+        var kickFrom = username;
+        var target = document.getElementById("kickName").value;
+        socketio.emit('kick', target, kickFrom );
+      }
+      
+      
+      function banUser(){
+        var banFrom  = username; 
+        var target = document.getElementById("banName").value;
+        socketio.emit('ban', target, banFrom );
+      }
+      
+      
+      function grantOwnership(){
+        var target = document.getElementById("grantName").value;
+        var grantFrom = username;
+        socketio.emit('grant', target, grantFrom );
+      }
+      </script>
+   </head>
+
+   <body>
+     <div  id="roomz">
+      <input type="text" id="room_input"/>
+      <button onclick="addRoom()">New Room </button>
+    </div>
+      <div  id="rooms"></div>
+      <div  id="inroom"></div>
+    <div id="messagestuff">
+      <input type="text" id="message_input"/>
+      <button id="sendMess" onclick="sendMessage()">Send Message</button>
+    </div>
+    <div id="method">
+      <input type="text" id="kickName"/>
+      <button id="kickbutton" onClick="kickUser()">Kick</button><br>
+      <input type="text" id="banName"/>
+      <button id="banbutton" onClick="banUser()">Ban</button><br>
+      <input type="text" id="grantName"/>
+      <button id="grantB" onClick="grantOwnership()">Grant Priviliges</button><br>
+    </div>
+    <div id="chatlog"></div>
+   </body>
+</html>
